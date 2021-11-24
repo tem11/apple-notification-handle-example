@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\Transaction;
 use App\Exceptions\Transaction\DuplicateTransactionException;
+use App\Exceptions\Transaction\UpdateInactiveSubscriptionException;
 use App\Interfaces\PaymentNotificationInterface;
 use App\Repository\SubscriptionRepository;
 use App\Repository\TransactionRepository;
@@ -22,6 +23,7 @@ class TransactionFactory
 
     /**
      * @throws DuplicateTransactionException
+     * @throws UpdateInactiveSubscriptionException
      */
     public function prepareTransaction(
         PaymentNotificationInterface $paymentNotification,
@@ -40,7 +42,12 @@ class TransactionFactory
             provider: $providerName,
             expiresAt: $paymentNotification->getExpiresAt()
         );
-        if ($subscription !== null) {
+        if (null !== $subscription) {
+            /** TODO: Refactor THIS! Hook to lifecycle event and explode if object is inactive */
+            if (false === $subscription->isActive()) {
+                throw new UpdateInactiveSubscriptionException();
+            }
+
             $transaction->setSubscription($subscription);
             $subscription->addTransaction($transaction);
         }

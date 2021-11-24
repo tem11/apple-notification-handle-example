@@ -5,6 +5,7 @@ namespace App\Manager;
 use App\Exceptions\Notification\PaymentManagerNotFoundException;
 use App\Exceptions\Transaction\CantHandleTransactionException;
 use App\Exceptions\Transaction\DuplicateTransactionException;
+use App\Exceptions\Transaction\UpdateInactiveSubscriptionException;
 use App\Factory\TransactionFactory;
 use App\Interfaces\PaymentManager\PaymentManagerInterface;
 use App\Interfaces\PaymentNotificationInterface;
@@ -37,7 +38,7 @@ class NotificationManager
      * either process transaction or not store it!
      *
      * @throws DuplicateTransactionException|PaymentManagerNotFoundException|UnauthorizedHttpException
-     * @throws CantHandleTransactionException
+     * @throws CantHandleTransactionException|UpdateInactiveSubscriptionException
      */
     public function handle(PaymentNotificationInterface $paymentNotification): bool
     {
