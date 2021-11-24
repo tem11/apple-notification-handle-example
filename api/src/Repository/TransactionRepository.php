@@ -21,8 +21,6 @@ class TransactionRepository extends ServiceEntityRepository
 
     public function transactionExists(string $transactionId): bool
     {
-        return null !== $this->findOneBy([
-            'referenceId' => $transactionId
-        ]);
+        return null !== $this->findOneBy(['referenceId' => $transactionId]);
     }
 }

@@ -7,6 +7,7 @@ use App\Entity\Transaction;
 use App\Interfaces\NotificationStatus;
 use App\Interfaces\TransactionHandlerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\Pure;
 use Psr\Log\LoggerInterface;
 
 class PurchaseTransactionHandler implements TransactionHandlerInterface
@@ -18,20 +19,18 @@ class PurchaseTransactionHandler implements TransactionHandlerInterface
     ) {
     }
 
-    public function supports(Transaction $transaction): bool
+    #[Pure] public function supports(Transaction $transaction): bool
     {
         return $transaction->getStatus() === NotificationStatus::STATUS_PURCHASE;
     }
 
     public function handle(Transaction $transaction): bool
     {
-        if ($transaction->getSubscription() !== null || $transaction->getSubscription() !== null) {
+        if ($transaction->getSubscription() !== null) {
             // TODO Add proper situation handler
             $this->logger->error(
                 'Attempt to process purchase transaction for existing subscription. Purchase impossible',
-                [
-                    'transaction_ref' => $transaction->getReferenceId()
-                ]
+                ['transaction_ref' => $transaction->getReferenceId()]
             );
             return false;
         }
@@ -39,9 +38,7 @@ class PurchaseTransactionHandler implements TransactionHandlerInterface
         if ($transaction->getExpiresAt()->getTimestamp() < time()) {
             $this->logger->error(
                 'Transaction already expired',
-                [
-                    'transaction_ref' => $transaction->getReferenceId()
-                ]
+                ['transaction_ref' => $transaction->getReferenceId()]
             );
 
             return false;

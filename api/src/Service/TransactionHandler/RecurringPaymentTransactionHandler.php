@@ -6,6 +6,8 @@ use App\Entity\Subscription;
 use App\Entity\Transaction;
 use App\Interfaces\NotificationStatus;
 use App\Interfaces\TransactionHandlerInterface;
+use DateTimeImmutable;
+use JetBrains\PhpStorm\Pure;
 use Psr\Log\LoggerInterface;
 
 class RecurringPaymentTransactionHandler implements TransactionHandlerInterface
@@ -20,57 +22,45 @@ class RecurringPaymentTransactionHandler implements TransactionHandlerInterface
     ) {
     }
 
-    public function supports(Transaction $transaction): bool
+    #[Pure] public function supports(Transaction $transaction): bool
     {
         return isset(self::STATUS_MAPPING[$transaction->getStatus()]);
     }
 
     public function handle(Transaction $transaction): bool
     {
-        if ($transaction->getExpiresAt()->getTimestamp() < time()) {
+        if ($transaction->getExpiresAt() < new DateTimeImmutable()) {
             $this->logger->error(
                 'Transaction already expired. Renew impossible.',
-                [
-                    'transaction_ref' => $transaction->getReferenceId()
-                ]
+                ['transaction_ref' => $transaction->getReferenceId()]
             );
 
             return false;
         }
-
-        if ($transaction->getSubscription() === null) {
+        $subscription = $transaction->getSubscription();
+        if (null === $subscription) {
             // TODO Decide whether we going to create subscription if renew comes through
             $this->logger->error(
                 'Subscription not found. Renew impossible',
-                [
-                    'transaction_ref' => $transaction->getReferenceId()
-                ]
+                ['transaction_ref' => $transaction->getReferenceId()]
             );
 
             return false;
         }
 
-
-        if ($transaction->getSubscription()->getExpiresAt()->getTimestamp() > $transaction->getExpiresAt()->getTimestamp()) {
-            // TODO Decide whether we going to create subscription if renew comes through
+        if ($subscription->getExpiresAt() > $transaction->getExpiresAt()) {
             $this->logger->warning(
-                'Subscription period is greater than renewal',
-                [
-                    'transaction_ref' => $transaction->getReferenceId()
-                ]
+                'Subscription period is greater than provided in renewal transaction',
+                ['transaction_ref' => $transaction->getReferenceId()]
             );
 
             // nothing to do, can store transaction and leave dates untouched
+            // @todo investigate if we need to add transaction if expireAt is lower than current amount
             return true;
         }
 
-
-        $transaction
-            ->getSubscription()
-            ->setExpiresAt(
-                // clone to make Doctrine happy
-                clone $transaction->getExpiresAt()
-            )
+        $subscription
+            ->setExpiresAt(clone $transaction->getExpiresAt())
             ->setStatus(self::STATUS_MAPPING[$transaction->getStatus()])
         ;
 

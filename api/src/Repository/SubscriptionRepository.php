@@ -19,9 +19,7 @@ class SubscriptionRepository extends ServiceEntityRepository
         parent::__construct($registry, Subscription::class);
     }
 
-    public function findBySubscriptionReference(
-        string $subscriptionReference
-    ): ?Subscription
+    public function findBySubscriptionReference(string $subscriptionReference): ?Subscription
     {
         return $this->findOneBy(['subscriptionRef' => $subscriptionReference]);
     }

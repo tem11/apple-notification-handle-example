@@ -31,9 +31,8 @@ class TransactionFactory
             throw new DuplicateTransactionException();
         }
 
-        $subscription = $this->subscriptionRepository->findBySubscriptionReference(
-            $paymentNotification->getSubscriptionId()
-        );
+        $subscription = $this->subscriptionRepository
+            ->findBySubscriptionReference($paymentNotification->getSubscriptionId());
         $transaction = new Transaction(
             referenceId: $paymentNotification->getTransactionId(),
             subscriptionReference: $paymentNotification->getSubscriptionId(),

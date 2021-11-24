@@ -73,13 +73,6 @@ class Subscription
         return $this->subscriptionRef;
     }
 
-    public function setSubscriptionRef(string $subscriptionRef): self
-    {
-        $this->subscriptionRef = $subscriptionRef;
-
-        return $this;
-    }
-
     public function getExpiresAt(): ?DateTimeImmutable
     {
         return $this->expiresAt;
@@ -112,22 +105,22 @@ class Subscription
         return $this->transactions;
     }
 
-    public function addTransaction(Transaction $oneToMany): self
+    public function addTransaction(Transaction $transaction): self
     {
-        if (!$this->transactions->contains($oneToMany)) {
-            $this->transactions[] = $oneToMany;
-            $oneToMany->setSubscription($this);
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->setSubscription($this);
         }
 
         return $this;
     }
 
-    public function removeOneToMany(Transaction $oneToMany): self
+    public function removeTransaction(Transaction $transaction): self
     {
-        if ($this->transactions->removeElement($oneToMany)) {
+        if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)
-            if ($oneToMany->getSubscription() === $this) {
-                $oneToMany->setSubscription(null);
+            if ($transaction->getSubscription() === $this) {
+                $transaction->setSubscription(null);
             }
         }
 

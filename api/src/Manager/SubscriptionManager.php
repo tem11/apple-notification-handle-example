@@ -18,24 +18,26 @@ class SubscriptionManager
     /**
      * @var TransactionHandlerInterface[]
      */
-    private array $transactionHandlers = [];
+    private array $transactionHandlers;
 
+    /** @TODO: Use compilerPass & tag services to insert as array and decouple from constructor */
     public function __construct(
         PurchaseTransactionHandler $purchaseTransactionHandler,
         RecurringPaymentTransactionHandler $recurringPaymentTransactionHandler,
         CancelledTransactionHandler $cancelledTransactionHandler
     ) {
-        $this->transactionHandlers[] = $purchaseTransactionHandler;
-        $this->transactionHandlers[] = $recurringPaymentTransactionHandler;
-        $this->transactionHandlers[] = $cancelledTransactionHandler;
+        $this->transactionHandlers = [
+            $purchaseTransactionHandler,
+            $recurringPaymentTransactionHandler,
+            $cancelledTransactionHandler,
+        ];
     }
 
     /**
      * @throws CantHandleTransactionException
      */
-    public function processTransaction(
-        Transaction $transaction
-    ): bool {
+    public function processTransaction(Transaction $transaction): bool
+    {
         foreach ($this->transactionHandlers as $transactionHandler) {
             if ($transactionHandler->supports($transaction)) {
                 return $transactionHandler->handle($transaction);

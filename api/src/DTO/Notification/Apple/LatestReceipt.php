@@ -2,17 +2,21 @@
 
 namespace App\DTO\Notification\Apple;
 
+use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 
 class LatestReceipt
 {
     public function __construct(
         #[Type('string')]
-        private string $item_id,
+        #[SerializedName('item_id')]
+        private string $itemId,
         #[Type('string')]
-        private string $expires_date,
+        #[SerializedName('expires_date')]
+        private string $expiresDate,
         #[Type('string')]
-        private string $transaction_id,
+        #[SerializedName('transaction_id')]
+        private string $transactionId,
     )
     {}
 
@@ -21,7 +25,7 @@ class LatestReceipt
      */
     public function getItemId(): string
     {
-        return $this->item_id;
+        return $this->itemId;
     }
 
     /**
@@ -29,7 +33,7 @@ class LatestReceipt
      */
     public function getExpiresDate(): string
     {
-        return $this->expires_date;
+        return $this->expiresDate;
     }
 
     /**
@@ -37,6 +41,6 @@ class LatestReceipt
      */
     public function getTransactionId(): string
     {
-        return $this->transaction_id;
+        return $this->transactionId;
     }
 }

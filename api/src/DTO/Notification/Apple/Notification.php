@@ -8,13 +8,11 @@ use App\Interfaces\NotificationStatus;
 use App\Interfaces\PaymentNotificationInterface;
 use DateTimeImmutable;
 use Exception;
+use JetBrains\PhpStorm\Pure;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @psalm-immutable
- */
 class Notification implements JsonPayloadObject, PaymentNotificationInterface
 {
     // @todo Use Enum
@@ -38,7 +36,7 @@ class Notification implements JsonPayloadObject, PaymentNotificationInterface
         private ?Receipt $unifiedReceipt
     ) {}
 
-    public function getTransactionId(): string
+    #[Pure] public function getTransactionId(): string
     {
         return $this
             ->unifiedReceipt
@@ -83,44 +81,15 @@ class Notification implements JsonPayloadObject, PaymentNotificationInterface
                     '@'. ceil($this->unifiedReceipt->getLatestReceiptInfo()->getExpiresDate()/1000)
                 ),
             self::NOTIFICATION_TYPE_CANCEL => new DateTimeImmutable(),
-            default => throw new CantDetermineStatusException()//@todo use proper exception
+            default => throw new CantDetermineStatusException()
         };
     }
 
-    public function getSignature(): string
+    #[Pure] public function getSignature(): string
     {
         /**
          * @TODO MOCK, actual processing of signature need to be done
          */
-        return base64_encode(
-            $this->unifiedReceipt->getLatestReceiptInfo()
-                ->getItemId()
-        );
+        return base64_encode($this->unifiedReceipt->getLatestReceiptInfo()->getItemId());
     }
-
-    /**
-     * @return string|null
-     */
-    public function getNotificationType(): ?string
-    {
-        return $this->notificationType;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getAutoRenewProductId(): ?string
-    {
-        return $this->autoRenewProductId;
-    }
-
-    /**
-     * @return Receipt|null
-     */
-    public function getUnifiedReceipt(): ?Receipt
-    {
-        return $this->unifiedReceipt;
-    }
-
-
 }
