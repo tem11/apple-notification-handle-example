@@ -5,6 +5,7 @@ namespace App\Factory;
 use App\Entity\Transaction;
 use App\Exceptions\Transaction\DuplicateTransactionException;
 use App\Interfaces\PaymentNotificationInterface;
+use App\Repository\SubscriptionRepository;
 use App\Repository\TransactionRepository;
 
 /**
@@ -14,7 +15,8 @@ use App\Repository\TransactionRepository;
 class TransactionFactory
 {
     public function __construct(
-        private TransactionRepository $transactionRepository
+        private TransactionRepository $transactionRepository,
+        private SubscriptionRepository $subscriptionRepository
     ) {
     }
 
@@ -29,12 +31,21 @@ class TransactionFactory
             throw new DuplicateTransactionException();
         }
 
-        return new Transaction(
+        $subscription = $this->subscriptionRepository->findBySubscriptionReference(
+            $paymentNotification->getSubscriptionId()
+        );
+        $transaction = new Transaction(
             referenceId: $paymentNotification->getTransactionId(),
-            subscriptionId: $paymentNotification->getSubscriptionId(),
+            subscriptionReference: $paymentNotification->getSubscriptionId(),
             status: $paymentNotification->getStatus(),
             provider: $providerName,
             expiresAt: $paymentNotification->getExpiresAt()
         );
+        if ($subscription !== null) {
+            $transaction->setSubscription($subscription);
+            $subscription->addTransaction($transaction);
+        }
+
+        return $transaction;
     }
 }

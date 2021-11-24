@@ -4,6 +4,7 @@ namespace App\DTO\Notification\Apple;
 
 use App\Exceptions\Notification\CantDetermineStatusException;
 use App\Interfaces\DTO\JsonPayloadObject;
+use App\Interfaces\NotificationStatus;
 use App\Interfaces\PaymentNotificationInterface;
 use DateTimeImmutable;
 use Exception;
@@ -52,10 +53,10 @@ class Notification implements JsonPayloadObject, PaymentNotificationInterface
     public function getStatus(): string
     {
         return match($this->notificationType) {
-            self::NOTIFICATION_TYPE_BUY => PaymentNotificationInterface::STATUS_PURCHASE,
-            self::NOTIFICATION_TYPE_RENEW => PaymentNotificationInterface::STATUS_RENEW,
-            self::NOTIFICATION_TYPE_FAILED_PAYMENT => PaymentNotificationInterface::STATUS_FAILED_BILLING,
-            self::NOTIFICATION_TYPE_CANCEL => PaymentNotificationInterface::STATUS_CANCEL,
+            self::NOTIFICATION_TYPE_BUY => NotificationStatus::STATUS_PURCHASE,
+            self::NOTIFICATION_TYPE_RENEW => NotificationStatus::STATUS_RENEW,
+            self::NOTIFICATION_TYPE_FAILED_PAYMENT => NotificationStatus::STATUS_FAILED_BILLING,
+            self::NOTIFICATION_TYPE_CANCEL => NotificationStatus::STATUS_CANCEL,
             default => throw new CantDetermineStatusException($this->notificationType)
         };
     }

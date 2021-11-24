@@ -18,14 +18,14 @@ class PurchaseTransactionHandler implements TransactionHandlerInterface
     ) {
     }
 
+    public function supports(Transaction $transaction): bool
+    {
+        return $transaction->getStatus() === NotificationStatus::STATUS_PURCHASE;
+    }
+
     public function handle(Transaction $transaction): bool
     {
-        if ($transaction->getStatus() !== NotificationStatus::STATUS_PURCHASE) {
-            return false;
-        }
-
-        $subscription = $transaction->getSubscription();
-        if ($subscription !== null) {
+        if ($transaction->getSubscription() !== null || $transaction->getSubscription() !== null) {
             // TODO Add proper situation handler
             $this->logger->error(
                 'Attempt to process purchase transaction for existing subscription. Purchase impossible',
@@ -35,6 +35,7 @@ class PurchaseTransactionHandler implements TransactionHandlerInterface
             );
             return false;
         }
+
         if ($transaction->getExpiresAt()->getTimestamp() < time()) {
             $this->logger->error(
                 'Transaction already expired',
@@ -47,7 +48,7 @@ class PurchaseTransactionHandler implements TransactionHandlerInterface
         }
 
         $subscription = new Subscription(
-            $transaction->getSubscriptionId(), $transaction->getExpiresAt(), Subscription::STATUS_ACTIVE
+            $transaction->getSubscriptionReference(), $transaction->getExpiresAt(), Subscription::STATUS_ACTIVE
         );
         $this->entityManager->persist($subscription);
 

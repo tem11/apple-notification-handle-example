@@ -55,15 +55,17 @@ class Transaction implements NotificationStatus
      */
     private $subscription;
 
+    private ?string $subscriptionReference;
+
     public function __construct(
         string $referenceId,
-        string $subscriptionId,
+        string $subscriptionReference,
         string $status,
         string $provider,
         DateTimeImmutable $expiresAt,
     ) {
         $this->referenceId = $referenceId;
-        $this->subscriptionId = $subscriptionId;
+        $this->subscriptionReference = $subscriptionReference;
         $this->status = $status;
         $this->provider = $provider;
         $this->expiresAt = $expiresAt;
@@ -84,6 +86,11 @@ class Transaction implements NotificationStatus
     public function getSubscriptionId(): ?string
     {
         return $this->subscriptionId;
+    }
+
+    public function getSubscriptionReference(): ?string
+    {
+        return $this->subscriptionReference;
     }
 
     public function getStatus(): ?string

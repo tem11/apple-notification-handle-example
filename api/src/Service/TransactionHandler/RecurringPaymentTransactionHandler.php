@@ -20,12 +20,13 @@ class RecurringPaymentTransactionHandler implements TransactionHandlerInterface
     ) {
     }
 
+    public function supports(Transaction $transaction): bool
+    {
+        return isset(self::STATUS_MAPPING[$transaction->getStatus()]);
+    }
+
     public function handle(Transaction $transaction): bool
     {
-        if (!isset(self::STATUS_MAPPING[$transaction->getStatus()])) {
-            return false;
-        }
-
         if ($transaction->getExpiresAt()->getTimestamp() < time()) {
             $this->logger->error(
                 'Transaction already expired. Renew impossible.',
@@ -49,7 +50,8 @@ class RecurringPaymentTransactionHandler implements TransactionHandlerInterface
             return false;
         }
 
-        if ($transaction->getSubscription()->getExpiresAt()->getTimestamp() > $transaction->getExpiresAt()) {
+
+        if ($transaction->getSubscription()->getExpiresAt()->getTimestamp() > $transaction->getExpiresAt()->getTimestamp()) {
             // TODO Decide whether we going to create subscription if renew comes through
             $this->logger->warning(
                 'Subscription period is greater than renewal',

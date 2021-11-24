@@ -12,8 +12,13 @@ class CancelledTransactionHandler implements TransactionHandlerInterface
 {
 
     public function __construct(
-        private LoggerInterface $logger,
+        private LoggerInterface $logger
     ) {
+    }
+
+    public function supports(Transaction $transaction): bool
+    {
+        return $transaction->getStatus() === NotificationStatus::STATUS_CANCEL;
     }
 
     public function handle(Transaction $transaction): bool
