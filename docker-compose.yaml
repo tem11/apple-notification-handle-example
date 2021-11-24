@@ -1,22 +1,13 @@
 version: '3.7'
 services:
-  php:
+  test-app:
+    build: .
     container_name: test-app
-    build: ./docker-resources/php-fpm
-    volumes:
-      - ./api/:/var/www/html:cached
-      - ./api/var/logs/project:/var/www/html/var/log:cached
-    environment:
-      PHP_IDE_CONFIG: "serverName=test-app"
-      XDEBUG_CONFIG: "start_with_request=yes client_host=host.docker.internal"
-  nginx:
-    build: ./docker-resources/nginx
     ports:
-      - "80:80"
+      - "80:8080"
     volumes:
-      - ./api/var/logs/nginx:/var/log/nginx:cached
-      - ./api/:/var/www/html:cached
-
+      - ./api:/var/www/html
+      - ./conf/php.conf/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
   database:
     container_name: test-db
     image: mysql:5
