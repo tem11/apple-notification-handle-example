@@ -9,4 +9,6 @@ interface PaymentManagerInterface
      */
     public function supports(string $notificationClass): bool;
     public function verifySignature(string $signature): bool;
+
+    public function getName(): string;
 }

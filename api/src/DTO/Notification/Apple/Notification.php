@@ -5,10 +5,11 @@ namespace App\DTO\Notification\Apple;
 use App\Exceptions\Notification\CantDetermineStatusException;
 use App\Interfaces\DTO\JsonPayloadObject;
 use App\Interfaces\PaymentNotificationInterface;
+use DateTimeImmutable;
+use Exception;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * @psalm-immutable
@@ -64,7 +65,11 @@ class Notification implements JsonPayloadObject, PaymentNotificationInterface
         return $this->autoRenewProductId;
     }
 
-    public function getExpiresAt(): DateTime
+    /**
+     * @throws CantDetermineStatusException
+     * @throws Exception - DateTime exception
+     */
+    public function getExpiresAt(): DateTimeImmutable
     {
         /*
          * @TODO investigate notification structure for
@@ -73,10 +78,23 @@ class Notification implements JsonPayloadObject, PaymentNotificationInterface
         return match($this->notificationType) {
             self::NOTIFICATION_TYPE_BUY, self::NOTIFICATION_TYPE_RENEW,
             self::NOTIFICATION_TYPE_FAILED_PAYMENT =>
-                new DateTime($this->unifiedReceipt->getLatestReceiptInfo()->getExpiresDate()),
-            self::NOTIFICATION_TYPE_CANCEL => new DateTime(),
+                new DateTimeImmutable(
+                    '@'. ceil($this->unifiedReceipt->getLatestReceiptInfo()->getExpiresDate()/1000)
+                ),
+            self::NOTIFICATION_TYPE_CANCEL => new DateTimeImmutable(),
             default => throw new CantDetermineStatusException()//@todo use proper exception
         };
+    }
+
+    public function getSignature(): string
+    {
+        /**
+         * @TODO MOCK, actual processing of signature need to be done
+         */
+        return base64_encode(
+            $this->unifiedReceipt->getLatestReceiptInfo()
+                ->getItemId()
+        );
     }
 
     /**
