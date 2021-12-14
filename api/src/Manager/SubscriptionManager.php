@@ -5,9 +5,6 @@ namespace App\Manager;
 use App\Entity\Transaction;
 use App\Exceptions\Transaction\CantHandleTransactionException;
 use App\Interfaces\TransactionHandlerInterface;
-use App\Service\TransactionHandler\CancelledTransactionHandler;
-use App\Service\TransactionHandler\PurchaseTransactionHandler;
-use App\Service\TransactionHandler\RecurringPaymentTransactionHandler;
 
 /**
  * This class is a part of transactional processing.
@@ -16,22 +13,11 @@ use App\Service\TransactionHandler\RecurringPaymentTransactionHandler;
 class SubscriptionManager
 {
     /**
-     * @var TransactionHandlerInterface[]
+     * @param iterable<TransactionHandlerInterface> $transactionHandlers
      */
-    private array $transactionHandlers;
-
-    /** @TODO: Use compilerPass & tag services to insert as array and decouple from constructor */
     public function __construct(
-        PurchaseTransactionHandler $purchaseTransactionHandler,
-        RecurringPaymentTransactionHandler $recurringPaymentTransactionHandler,
-        CancelledTransactionHandler $cancelledTransactionHandler
-    ) {
-        $this->transactionHandlers = [
-            $purchaseTransactionHandler,
-            $recurringPaymentTransactionHandler,
-            $cancelledTransactionHandler,
-        ];
-    }
+        private iterable $transactionHandlers
+    ) {}
 
     /**
      * @throws CantHandleTransactionException

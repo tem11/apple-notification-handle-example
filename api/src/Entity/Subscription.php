@@ -63,6 +63,11 @@ class Subscription
         $this->createdAt = new DateTimeImmutable();
     }
 
+    public function isActive(): bool
+    {
+        return $this->status !== self::STATUS_CLOSED;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -78,23 +83,9 @@ class Subscription
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(DateTimeImmutable $expiresAt): self
-    {
-        $this->expiresAt = $expiresAt;
-
-        return $this;
-    }
-
     public function getStatus(): ?string
     {
         return $this->status;
-    }
-
-    public function setStatus(string $status): self
-    {
-        $this->status = $status;
-
-        return $this;
     }
 
     /**
@@ -103,6 +94,20 @@ class Subscription
     public function getTransactions(): Collection
     {
         return $this->transactions;
+    }
+
+    public function setExpiresAt(DateTimeImmutable $expiresAt): self
+    {
+        $this->expiresAt = $expiresAt;
+
+        return $this;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
     }
 
     public function addTransaction(Transaction $transaction): self

@@ -6,6 +6,12 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    _instanceof:
+        # services whose classes are instances of CustomInterface will be tagged automatically
+        App\Interfaces\PaymentManager\PaymentManagerInterface:
+            tags: [ 'app.payment_manager' ]
+        App\Interfaces\TransactionHandlerInterface:
+            tags: [ 'app.transaction_handler' ]
     App\:
         resource: '../src/'
         exclude:
@@ -13,6 +19,14 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Tests/'
+
+    App\Manager\NotificationManager:
+        arguments:
+            $paymentManagers: !tagged_iterator app.payment_manager
+
+    App\Manager\SubscriptionManager:
+        arguments:
+            $transactionHandlers: !tagged_iterator app.transaction_handler
 
     App\EventListener\ExceptionListener:
         tags:

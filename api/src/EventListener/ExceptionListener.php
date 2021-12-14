@@ -12,7 +12,6 @@ use Symfony\Component\Validator\ConstraintViolation;
 
 class ExceptionListener
 {
-
     public function __construct(private LoggerInterface $logger) {}
 
     public function onKernelException(ExceptionEvent $event): ExceptionEvent
